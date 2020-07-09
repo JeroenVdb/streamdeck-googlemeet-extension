@@ -9,6 +9,12 @@
     "nativeMessaging",
     "https://meet.google.com/*"
   ],
+  "background": {
+    "persistent": true,
+    "scripts": [
+      "background.js"
+    ]
+  },
   "content_scripts": [
     {
       "matches": ["https://meet.google.com/*"],
