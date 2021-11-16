@@ -1,4 +1,4 @@
-const socket = new WebSocket('ws://localhost:1987');
+let socket = new WebSocket('ws://localhost:1987');
 
 let isMuted = false;
 let muteButton: HTMLElement | null = null;
@@ -9,7 +9,9 @@ socket.addEventListener('open', () => {
 });
 
 socket.addEventListener('message', function (event) {
-    var message: actionMessage = JSON.parse(event.data);
+    console.log(`[extension] received event: ${event.data}`);
+
+    var message: actionMessage | requestMessage = JSON.parse(event.data);
     if (message.type === 'action') {
         if (message.value === 'mute') {
             mute();
@@ -20,6 +22,10 @@ socket.addEventListener('message', function (event) {
         } else {
             console.log('Dont know this action: ' + message.value);
         }
+    } else if (message.type === 'request') {
+        if (message.value === 'muteState') {
+            updateMuteState();
+        }
     }
 });
 
@@ -28,9 +34,14 @@ type actionMessage = {
     value: string;
 }
 
+type requestMessage = {
+    type: 'request';
+    value: string;
+}
+
 type muteStateMessage = {
     type: 'muteState';
-    value: 'muted' | 'unmuted';
+    value: 'muted' | 'unmuted';
 }
 
 type identifyMessage = {
@@ -39,8 +50,8 @@ type identifyMessage = {
 }
 
 function toggleMute() {
-    let muteButton = document.querySelector('[data-tooltip="Turn off microphone (⌘ + D)"]') as HTMLElement;
-    let unmuteButton = document.querySelector('[data-tooltip="Turn on microphone (⌘ + D)"]') as HTMLElement;
+    let muteButton = document.querySelector('[aria-label="Turn off microphone (⌘ + D)"]') as HTMLElement;
+    let unmuteButton = document.querySelector('[aria-label="Turn on microphone (⌘ + D)"]') as HTMLElement;
 
     if (muteButton) {
         muteButton.click();
@@ -52,7 +63,7 @@ function toggleMute() {
 }
 
 function unmute() {
-    let unmuteButton = document.querySelector('[data-tooltip="Turn on microphone (⌘ + D)"]') as HTMLElement;
+    let unmuteButton = document.querySelector('[aria-label="Turn on microphone (⌘ + D)"]') as HTMLElement;
 
     if (unmuteButton) {
         unmuteButton.click();
@@ -60,7 +71,7 @@ function unmute() {
 }
 
 function mute() {
-    let muteButton = document.querySelector('[data-tooltip="Turn off microphone (⌘ + D)"]') as HTMLElement;
+    let muteButton = document.querySelector('[aria-label="Turn off microphone (⌘ + D)"]') as HTMLElement;
 
     if (muteButton) {
         muteButton.click();
@@ -68,6 +79,7 @@ function mute() {
 }
 
 function updateMuteState() {
+    let muteButton = document.querySelectorAll("[data-is-muted]")[0] as HTMLElement;
     if (muteButton) {
         if (isMuted !== Boolean(muteButton.getAttribute("data-is-muted") === 'true')) {
             isMuted = Boolean(muteButton.getAttribute("data-is-muted") === 'true');
@@ -76,34 +88,21 @@ function updateMuteState() {
     }
 }
 
-function observeMuteStateChange() {
-    muteButton = document.querySelectorAll("[data-tooltip][data-is-muted]")[0] as HTMLElement;
-    if (muteButton) {
-        clearInterval(findMuteButton);
-        let observer = new MutationObserver(updateMuteState);
-        observer.observe(muteButton, {
-            childList: false,
-            attributes: true,
-            attributeFilter: ['data-is-muted'],
-            subtree: false
-        });
-    }
-}
-let findMuteButton = window.setInterval(observeMuteStateChange, 250);
+let findMuteButton = window.setInterval(updateMuteState, 250);
 
 function sendMuteState() {
     const message: muteStateMessage = {
         'type': 'muteState',
         'value': isMuted ? 'muted' : 'unmuted'
-    }
+    };
     socket.send(JSON.stringify(message));
 }
 
 function sendIdentification() {
-    var identify: identifyMessage = {
+    const identify: identifyMessage = {
         'type': 'identify',
         'value': 'iamameet'
-    }
+    };
     socket.send(JSON.stringify(identify));
 }
 

@@ -11,4 +11,8 @@ _Developed and tested on MacOS, might need some work for Windows._
 
 ## Install
 
-This Extension is not yet distributed via the Chrome Web Store, you should load as "load unpacked". You'll find information here: https://developer.chrome.com/extensions/getstarted
+This Extension is not distributed via the Chrome Web Store, you should load as "load unpacked". You'll find information here: https://developer.chrome.com/extensions/getstarted
+
+1. Clone or download this repository
+1. Point the "load unpacked" to the build folder
+

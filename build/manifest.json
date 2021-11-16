@@ -1,7 +1,7 @@
 {
   "name": "Stream Deck Google Meet Extension",
   "version": "1.0",
-  "description": "Provide communication and functionality between the Stream Deck Google Meet plugin the Google Meet in the browser",
+  "description": "Provide communication and functionality between the Stream Deck Google Meet plugin and the Google Meet in the browser",
   "manifest_version": 2,
   "permissions": [
     "tabs",

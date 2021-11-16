@@ -1,5 +1,5 @@
 "use strict";
-const socket = new WebSocket('ws://localhost:1987');
+let socket = new WebSocket('ws://localhost:1987');
 let isMuted = false;
 let muteButton = null;
 socket.addEventListener('open', () => {
@@ -7,6 +7,7 @@ socket.addEventListener('open', () => {
     sendMuteState();
 });
 socket.addEventListener('message', function (event) {
+    console.log(`[extension] received event: ${event.data}`);
     var message = JSON.parse(event.data);
     if (message.type === 'action') {
         if (message.value === 'mute') {
@@ -22,10 +23,15 @@ socket.addEventListener('message', function (event) {
             console.log('Dont know this action: ' + message.value);
         }
     }
+    else if (message.type === 'request') {
+        if (message.value === 'muteState') {
+            updateMuteState();
+        }
+    }
 });
 function toggleMute() {
-    let muteButton = document.querySelector('[data-tooltip="Turn off microphone (⌘ + D)"]');
-    let unmuteButton = document.querySelector('[data-tooltip="Turn on microphone (⌘ + D)"]');
+    let muteButton = document.querySelector('[aria-label="Turn off microphone (⌘ + D)"]');
+    let unmuteButton = document.querySelector('[aria-label="Turn on microphone (⌘ + D)"]');
     if (muteButton) {
         muteButton.click();
     }
@@ -37,18 +43,19 @@ function toggleMute() {
     }
 }
 function unmute() {
-    let unmuteButton = document.querySelector('[data-tooltip="Turn on microphone (⌘ + D)"]');
+    let unmuteButton = document.querySelector('[aria-label="Turn on microphone (⌘ + D)"]');
     if (unmuteButton) {
         unmuteButton.click();
     }
 }
 function mute() {
-    let muteButton = document.querySelector('[data-tooltip="Turn off microphone (⌘ + D)"]');
+    let muteButton = document.querySelector('[aria-label="Turn off microphone (⌘ + D)"]');
     if (muteButton) {
         muteButton.click();
     }
 }
 function updateMuteState() {
+    let muteButton = document.querySelectorAll("[data-is-muted]")[0];
     if (muteButton) {
         if (isMuted !== Boolean(muteButton.getAttribute("data-is-muted") === 'true')) {
             isMuted = Boolean(muteButton.getAttribute("data-is-muted") === 'true');
@@ -56,20 +63,7 @@ function updateMuteState() {
         }
     }
 }
-function observeMuteStateChange() {
-    muteButton = document.querySelectorAll("[data-tooltip][data-is-muted]")[0];
-    if (muteButton) {
-        clearInterval(findMuteButton);
-        let observer = new MutationObserver(updateMuteState);
-        observer.observe(muteButton, {
-            childList: false,
-            attributes: true,
-            attributeFilter: ['data-is-muted'],
-            subtree: false
-        });
-    }
-}
-let findMuteButton = window.setInterval(observeMuteStateChange, 250);
+let findMuteButton = window.setInterval(updateMuteState, 250);
 function sendMuteState() {
     const message = {
         'type': 'muteState',
@@ -78,7 +72,7 @@ function sendMuteState() {
     socket.send(JSON.stringify(message));
 }
 function sendIdentification() {
-    var identify = {
+    const identify = {
         'type': 'identify',
         'value': 'iamameet'
     };
