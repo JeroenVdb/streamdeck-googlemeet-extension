@@ -47,11 +47,17 @@ function unmute() {
     if (unmuteButton) {
         unmuteButton.click();
     }
+    else {
+        throw Error('No unmute button found');
+    }
 }
 function mute() {
     let muteButton = document.querySelector('[aria-label="Turn off microphone (⌘ + D)"]');
     if (muteButton) {
         muteButton.click();
+    }
+    else {
+        throw Error('No mute button found');
     }
 }
 function updateMuteState() {
@@ -61,6 +67,9 @@ function updateMuteState() {
             isMuted = Boolean(muteButton.getAttribute("data-is-muted") === 'true');
             sendMuteState();
         }
+    }
+    else {
+        throw Error('Could not get muteState, could not find a mute or unmute button');
     }
 }
 let findMuteButton = window.setInterval(updateMuteState, 250);

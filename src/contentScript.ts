@@ -67,6 +67,8 @@ function unmute() {
 
     if (unmuteButton) {
         unmuteButton.click();
+    } else {
+        throw Error('No unmute button found');
     }
 }
 
@@ -75,6 +77,8 @@ function mute() {
 
     if (muteButton) {
         muteButton.click();
+    } else {
+        throw Error('No mute button found');
     }
 }
 
@@ -85,6 +89,8 @@ function updateMuteState() {
             isMuted = Boolean(muteButton.getAttribute("data-is-muted") === 'true');
             sendMuteState();
         }
+    } else {
+        throw Error('Could not get muteState, could not find a mute or unmute button');
     }
 }
 
