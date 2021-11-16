@@ -48,7 +48,7 @@ function unmute() {
         unmuteButton.click();
     }
     else {
-        throw Error('No unmute button found');
+        console.log('No unmute button found, the call might already be unmuted');
     }
 }
 function mute() {
@@ -57,11 +57,11 @@ function mute() {
         muteButton.click();
     }
     else {
-        throw Error('No mute button found');
+        console.log('No mute button found, the call might already be muted');
     }
 }
 function updateMuteState() {
-    let muteButton = document.querySelectorAll("[data-is-muted]")[0];
+    let muteButton = document.querySelectorAll("[aria-label*=microphone][data-is-muted]")[0];
     if (muteButton) {
         if (isMuted !== Boolean(muteButton.getAttribute("data-is-muted") === 'true')) {
             isMuted = Boolean(muteButton.getAttribute("data-is-muted") === 'true');
